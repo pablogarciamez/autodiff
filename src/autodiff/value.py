@@ -78,9 +78,3 @@ def buildTopo(node, topo, visited):
         for child in node.prev:
             buildTopo(child, topo, visited)
         topo.append(node)
-
-x = Value(2.0)
-y = Value(-3.0)
-f = (x * y).relu()
-f.backward()
-print(x.grad, y.grad)

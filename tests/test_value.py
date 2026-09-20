@@ -156,6 +156,14 @@ def test_truediv():
 
 # ---------- ReLU ----------
 
+def test_relu_positive():
+    x, y = Value(2.0), Value(3.0)
+    f = (x * y).relu()
+    f.backward()
+    assert f.data == 6.0
+    assert x.grad == 3.0
+    assert y.grad == 2.0
+
 def test_relu_negative():
     x, y = Value(2.0), Value(-3.0)
     f = (x * y).relu()
