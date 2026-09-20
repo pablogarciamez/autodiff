@@ -7,6 +7,7 @@ name = "autodiff"
 version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = ["numpy"]
 authors = [{name = "Pablo García Mezcua"}]
 license = "MIT"
 license-files = ["LICENSE"]
