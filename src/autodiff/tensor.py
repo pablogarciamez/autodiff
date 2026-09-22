@@ -21,6 +21,28 @@ class Tensor:
     def __add__(self, other):
         return Tensor(self.data + other.data, (self, other), "+")
 
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            out = Tensor(self.data * other, (self,), "*")
+            out.mul = other
+            return out
+        else:
+            return Tensor(self.data * other.data, (self, other), "*")
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __neg__(self):
+        return self * (-1)
+
+    def __sub__(self, other):
+        return self + (-other)
+
+    def __pow__(self, exp):
+        out = Tensor(self.data ** exp, (self,), "**")
+        out.exp = exp
+        return out
+
     def backwardStep(self):
         if self.op == "@":
             A, B = self.prev
@@ -38,6 +60,17 @@ class Tensor:
             A, B = self.prev
             A.grad += self.grad
             B.grad += self.grad.sum(axis = tuple(range(len(self.grad.shape) - len(B.grad.shape))))
+        if self.op == "*":
+            if len(self.prev) == 2:
+                A, B = self.prev
+                A.grad += B.data * self.grad
+                B.grad += A.data * self.grad
+            else:
+                A, = self.prev
+                A.grad += self.mul * self.grad
+        if self.op == "**":
+            A, = self.prev
+            A.grad += self.exp * A.data ** (self.exp - 1) * self.grad
 
     def backward(self):
         topo = []
