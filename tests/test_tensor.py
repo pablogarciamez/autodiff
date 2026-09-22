@@ -38,3 +38,38 @@ def test_matmul_gradcheck():
 
     np.testing.assert_allclose(A.grad, numericGrad(L_A, A_data), atol=1e-5)
     np.testing.assert_allclose(B.grad, numericGrad(L_B, B_data), atol=1e-5)
+
+def test_sum_with_axis():
+    A = Tensor(np.array([[1, 2, 3], [4, 5, 6]]))
+    def f(x): return Tensor(x).sum(1).data.sum()
+    B = A.sum(1)
+    B.backward()
+    np.testing.assert_allclose(A.grad, numericGrad(f, A.data))
+
+def test_sum_without_axis():
+    A = Tensor(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]))
+    def f(x): return Tensor(x).sum().data.sum()
+    B = A.sum()
+    B.backward()
+    np.testing.assert_allclose(A.grad, numericGrad(f, A.data))
+
+def test_relu():
+    A = Tensor(np.array([[1, -2, 3], [-4, 5, 6], [7, -8, -9], [10, 11, -12]]))
+    def f(x): return Tensor(x).relu().data.sum()
+    B = A.relu()
+    B.backward()
+    np.testing.assert_allclose(A.grad, numericGrad(f, A.data))
+
+def test_basic_sum():
+    A = Tensor(np.array([[1, -2, 3], [-4, 5, 6]]))
+    B = Tensor(np.array([1, 2, 3]))
+    A_data = A.data
+    B_data = B.data
+    def S_A(a):
+        return (Tensor(a) + Tensor(B_data)).data.sum()
+    def S_B(b):
+        return (Tensor(A_data) + Tensor(b)).data.sum()
+    C = A + B
+    C.backward()
+    np.testing.assert_allclose(A.grad, numericGrad(S_A, A_data))
+    np.testing.assert_allclose(B.grad, numericGrad(S_B, B_data))
